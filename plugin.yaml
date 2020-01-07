@@ -1,0 +1,9 @@
+---
+name: "exec"
+version: "0.1.0"
+usage: "helm exec [list|wildcard]"
+description: |-
+  Enter kubernetes container.
+command: "$HELM_PLUGIN_DIR/exec.sh"
+hooks:
+  install: "$HELM_PLUGIN_DIR/exec.sh --help"
