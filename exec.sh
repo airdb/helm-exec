@@ -78,23 +78,45 @@ EOF
 # -----------------------------------------------------------------------------
 # parse command line options
 
-if [[ $# -eq 0 ]]; then 
+if [[ $# -eq 0 ]]; then
   usage
   exit
 fi
 
 case "$1" in
-  "--help" | "-h")
-    usage
-    exit
-    ;;
-  "list" | "ls")
-    kubectl get pods -o wide
-    ;;
-  *)
+	"--help" | "-h")
+		usage
+    	exit
+    	;;
+	"list" | "ls")
+		kubectl get pods -o wide
+		;;
+	*)
+
     # Linux: https://github.com/airdb/kubectl-iexec/releases/latest/download/kubectl-iexec
     # MacOS: https://github.com/airdb/kubectl-iexec/releases/latest/download/kubectl-iexec-darwin
-    kubectl iexec $1
-    exit 
+	if command -v kubectl-iexec >/dev/null 2>&1; then
+		kubectl-iexec $1
+	else
+		case $(uname) in
+			Darwin)
+				wget \
+					https://github.com/airdb/kubectl-iexec/releases/latest/download/kubectl-iexec-darwin \
+					-O /usr/local/bin/kubectl-iexec
+				;;
+			Linux)
+				wget \
+					https://github.com/airdb/kubectl-iexec/releases/latest/download/kubectl-iexec \
+					-O /usr/local/bin/kubectl-iexec
+		  		;;
+			*)
+				echo "Not Support $(uname) Yet!"
+		  		;;
+      esac
+
+	  chmod +x /usr/local/bin/kubectl-iexec
+	fi
+
+    exit
     ;;
 esac

@@ -1,5 +1,5 @@
 PLUGIN_NAME := helm-exec
-REMOTE      := https://github.com/adamreese/$(PLUGIN_NAME)
+REMOTE      := https://github.com/airdb/$(PLUGIN_NAME)
 
 .PHONY: install
 install:
