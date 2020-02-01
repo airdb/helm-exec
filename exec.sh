@@ -11,7 +11,9 @@ Usage:
 
 OPTIONS:
   list, List all kubernetes pods.
+  list, List all kubernetes pods.
   wildcard, Wildcard characters for searching containers.
+  logs, Print the logs for a container in a pod.
 
 More info: https://github.com/airdb/helm-exec.
 EOF
@@ -90,6 +92,14 @@ case "$1" in
     	;;
 	"list" | "ls")
 		kubectl get pods -o wide
+		;;
+	"logs" | "log")
+		count=$(kubectl get pods -o name|awk -F "/" '{print $2}' | grep "$2" | wc -l )
+		if [[ $count -eq 1 ]]; then
+			kubectl logs $(kubectl get pods -o name |  awk -F "/" '{print $2}' | grep $2)
+		else
+			kubectl get pods -o name |  awk -F "/" '{print $2}' | grep $2
+		fi
 		;;
 	*)
 
