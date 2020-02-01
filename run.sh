@@ -4,13 +4,12 @@ set -euo pipefail
 # -----------------------------------------------------------------------------
 # usage
 
-usage() {
+function usage() {
 cat << EOF
 Usage:
-  helm exec [OPTIONS]
+  helm kube [OPTIONS]
 
 OPTIONS:
-  list, List all kubernetes pods.
   list, List all kubernetes pods.
   wildcard, Wildcard characters for searching containers.
   logs, Print the logs for a container in a pod.
@@ -26,7 +25,7 @@ EOF
 #
 # Print a horizontal line the width of the terminal.
 
-rule() {
+function rule() {
   local cols="${COLUMNS:-$(tput cols)}"
   local char=$'\u2500'
   printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' -
@@ -88,12 +87,19 @@ fi
 case "$1" in
 	"--help" | "-h")
 		usage
-    	exit
-    	;;
+    		exit
+    		;;
+
 	"list" | "ls")
 		kubectl get pods -o wide
 		;;
+
 	"logs" | "log")
+		if [[ $# -eq 1 ]]; then
+			kubectl get pods -o name |  awk -F "/" '{print $2}'
+			exit
+		fi
+
 		count=$(kubectl get pods -o name|awk -F "/" '{print $2}' | grep "$2" | wc -l )
 		if [[ $count -eq 1 ]]; then
 			kubectl logs $(kubectl get pods -o name |  awk -F "/" '{print $2}' | grep $2)
@@ -101,32 +107,36 @@ case "$1" in
 			kubectl get pods -o name |  awk -F "/" '{print $2}' | grep $2
 		fi
 		;;
-	*)
 
+	*)
+		install_kubectl_plugin
+		exit
+		;;
+esac
+
+
+function install_kubectl_plugin() {
     # Linux: https://github.com/airdb/kubectl-iexec/releases/latest/download/kubectl-iexec
     # MacOS: https://github.com/airdb/kubectl-iexec/releases/latest/download/kubectl-iexec-darwin
-	if command -v kubectl-iexec >/dev/null 2>&1; then
-		kubectl-iexec $1
-	else
-		case $(uname) in
-			Darwin)
-				wget \
-					https://github.com/airdb/kubectl-iexec/releases/latest/download/kubectl-iexec-darwin \
-					-O /usr/local/bin/kubectl-iexec
-				;;
-			Linux)
-				wget \
-					https://github.com/airdb/kubectl-iexec/releases/latest/download/kubectl-iexec \
-					-O /usr/local/bin/kubectl-iexec
-		  		;;
-			*)
-				echo "Not Support $(uname) Yet!"
-		  		;;
+        if command -v kubectl-iexec >/dev/null 2>&1; then
+                kubectl-iexec $1
+        else
+                case $(uname) in
+                        Darwin)
+                                wget \
+                                        https://github.com/airdb/kubectl-iexec/releases/latest/download/kubectl-iexec-darwin \
+                                        -O /usr/local/bin/kubectl-iexec
+                                ;;
+                        Linux)
+                                wget \
+                                        https://github.com/airdb/kubectl-iexec/releases/latest/download/kubectl-iexec \
+                                        -O /usr/local/bin/kubectl-iexec
+                                ;;
+                        *)
+                                echo "Not Support $(uname) Yet!"
+                                ;;
       esac
 
-	  chmod +x /usr/local/bin/kubectl-iexec
-	fi
-
-    exit
-    ;;
-esac
+          chmod +x /usr/local/bin/kubectl-iexec
+        fi
+}
