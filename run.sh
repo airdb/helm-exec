@@ -108,6 +108,17 @@ case "$1" in
 		fi
 		;;
 
+	"status" | "st" | "s")
+                if [[ $# -eq 1 ]]; then
+                        kubectl get pods -o name |  awk -F "/" '{print $2}'
+                        exit
+                fi
+
+                count=$(kubectl get pods -o name|awk -F "/" '{print $2}' | grep "$2" | wc -l )
+                if [[ $count -eq 1 ]]; then
+                        kubectl describe pod $(kubectl get pods -o name |  awk -F "/" '{print $2}' | grep $2)
+                fi
+		;;
 	*)
 		install_kubectl_plugin
 		exit
