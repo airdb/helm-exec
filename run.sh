@@ -76,6 +76,28 @@ server:          ${server}
 EOF
 }
 
+function install_kubectl_plugin() {
+    # Linux: https://github.com/airdb/kubectl-iexec/releases/latest/download/kubectl-iexec
+    # MacOS: https://github.com/airdb/kubectl-iexec/releases/latest/download/kubectl-iexec-darwin
+	case $(uname) in
+	Darwin)
+                wget \
+                        https://github.com/airdb/kubectl-iexec/releases/latest/download/kubectl-iexec-darwin \
+                        -O /usr/local/bin/kubectl-iexec
+                ;;
+        Linux)
+                wget \
+                        https://github.com/airdb/kubectl-iexec/releases/latest/download/kubectl-iexec \
+                        -O /usr/local/bin/kubectl-iexec
+                ;;
+        *)
+                echo "Not Support $(uname) Yet!"
+                ;;
+      esac
+
+      chmod +x /usr/local/bin/kubectl-iexec
+}
+
 # -----------------------------------------------------------------------------
 # parse command line options
 
@@ -119,35 +141,20 @@ case "$1" in
                         kubectl describe pod $(kubectl get pods -o name |  awk -F "/" '{print $2}' | grep $2)
                 fi
 		;;
+
+	"exec" )
+                if command -v kubectl-iexec >/dev/null 2>&1; then
+                        kubectl-iexec $2
+        	else
+			install_kubectl_plugin
+		fi
+		;;
+
 	*)
-		install_kubectl_plugin
-		exit
+        	if command -v kubectl-iexec >/dev/null 2>&1; then
+        	        kubectl-iexec $1
+        	else
+			install_kubectl_plugin
+		fi
 		;;
 esac
-
-
-function install_kubectl_plugin() {
-    # Linux: https://github.com/airdb/kubectl-iexec/releases/latest/download/kubectl-iexec
-    # MacOS: https://github.com/airdb/kubectl-iexec/releases/latest/download/kubectl-iexec-darwin
-        if command -v kubectl-iexec >/dev/null 2>&1; then
-                kubectl-iexec $1
-        else
-                case $(uname) in
-                        Darwin)
-                                wget \
-                                        https://github.com/airdb/kubectl-iexec/releases/latest/download/kubectl-iexec-darwin \
-                                        -O /usr/local/bin/kubectl-iexec
-                                ;;
-                        Linux)
-                                wget \
-                                        https://github.com/airdb/kubectl-iexec/releases/latest/download/kubectl-iexec \
-                                        -O /usr/local/bin/kubectl-iexec
-                                ;;
-                        *)
-                                echo "Not Support $(uname) Yet!"
-                                ;;
-      esac
-
-          chmod +x /usr/local/bin/kubectl-iexec
-        fi
-}
