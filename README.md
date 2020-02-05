@@ -10,12 +10,12 @@ OPTIONS:
   list, List all kubernetes pods.
   wildcard, Wildcard characters for searching containers.
 
-More info: https://github.com/airdb/helm-exec.
+More info: https://github.com/airdb/helm-kube.
 ```
 
 ## Install
 
 ```
-$ helm plugin install https://github.com/airdb/helm-exec
+$ helm plugin install https://github.com/airdb/helm-kube
 Installed plugin: exec
 ```

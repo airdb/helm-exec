@@ -11,10 +11,13 @@ Usage:
 
 OPTIONS:
   list, List all kubernetes pods.
-  wildcard, Wildcard characters for searching containers.
+  status, kubectl describe ingress or container.
+  ingress, List ingress.
   logs, Print the logs for a container in a pod.
+  exec, enter Wildcard characters for searching containers.
+  wildcard, Wildcard characters for searching containers.
 
-More info: https://github.com/airdb/helm-exec.
+More info: https://github.com/airdb/helm-kube.
 EOF
 
   exit
@@ -130,17 +133,40 @@ case "$1" in
 		fi
 		;;
 
-	"status" | "st" | "s")
+	"status" | "st" | "s" | "describe" | "des" | "desc")
                 if [[ $# -eq 1 ]]; then
                         kubectl get pods -o name |  awk -F "/" '{print $2}'
                         exit
                 fi
 
-                count=$(kubectl get pods -o name|awk -F "/" '{print $2}' | grep "$2" | wc -l )
-                if [[ $count -eq 1 ]]; then
-                        kubectl describe pod $(kubectl get pods -o name |  awk -F "/" '{print $2}' | grep $2)
-                fi
+		case $2 in 
+		"-h" | "--help")
+			echo "helm kube status"
+			echo 
+			echo "Usage:"
+			printf "\thelm kube status ingress\n"
+			printf "\thelm kube status <container>\n"
+			;;
+		"ing" | "ingress")
+			kubectl describe ingress;
+			;;
+		*)
+                	count=$(kubectl get pods -o name|awk -F "/" '{print $2}' | grep "$2" | wc -l )
+                	if [[ $count -eq 1 ]]; then
+                	        kubectl describe pod $(kubectl get pods -o name |  awk -F "/" '{print $2}' | grep $2)
+                	fi
+			;;
+		esac
 		;;
+
+       "ingress" | "ing" | "in")
+                if [[ $# -eq 1 ]]; then
+                        kubectl get ingress
+                        exit
+                fi
+                kubectl get ingress -o yaml
+
+                ;;
 
 	"exec" )
                 if command -v kubectl-iexec >/dev/null 2>&1; then
