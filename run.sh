@@ -168,6 +168,16 @@ case "$1" in
 
                 ;;
 
+       "update" | "upgrade") 
+		if [[ $# -ne 3 ]]; then
+	       		echo  Usage:  helm kube update [RELEASE] [CHART]
+                        exit
+                fi
+
+		# example: helm upgrade --recreate-pods --reuse-values oauth airdb/oauth
+		helm upgrade --recreate-pods --reuse-values $2 $3
+                ;;
+
 	"exec" )
                 if command -v kubectl-iexec >/dev/null 2>&1; then
                         kubectl-iexec $2
