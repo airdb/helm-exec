@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
+set -x
+iexecURL="https://github.com/airdb/kubectl-iexec/releases/latest/download/kubectl-iexec"
 
 # -----------------------------------------------------------------------------
 # usage
@@ -84,21 +86,17 @@ function install_kubectl_plugin() {
     # MacOS: https://github.com/airdb/kubectl-iexec/releases/latest/download/kubectl-iexec-darwin
 	case $(uname) in
 	Darwin)
-                wget \
-                        https://github.com/airdb/kubectl-iexec/releases/latest/download/kubectl-iexec-darwin \
-                        -O /usr/local/bin/kubectl-iexec
+                sudo wget ${iexecURL}-darwin -O /usr/local/bin/kubectl-iexec
                 ;;
         Linux)
-                wget \
-                        https://github.com/airdb/kubectl-iexec/releases/latest/download/kubectl-iexec \
-                        -O /usr/local/bin/kubectl-iexec
+                sudo wget ${iexecURL} -O /usr/local/bin/kubectl-iexec
                 ;;
         *)
                 echo "Not Support $(uname) Yet!"
                 ;;
       esac
 
-      chmod +x /usr/local/bin/kubectl-iexec
+      sudo chmod +x /usr/local/bin/kubectl-iexec
 }
 
 # -----------------------------------------------------------------------------
