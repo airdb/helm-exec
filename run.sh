@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-set -euo pipefail
-set -x
+# set -euo pipefail
+# set -x
 iexecURL="https://github.com/airdb/kubectl-iexec/releases/latest/download/kubectl-iexec"
 
 # -----------------------------------------------------------------------------
